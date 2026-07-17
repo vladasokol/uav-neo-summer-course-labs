@@ -50,6 +50,21 @@ def update(drone):
     # brightness changes and combine the two directions into one edge magnitude. Print the
     # mean magnitude. Advance _timer and finish at HOVER_TIME. See the README (Key terms).
 
+
+    image = drone.camera.get_downward_image()
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.blur(gray, (KERNEL_SIZE, KERNEL_SIZE))
+    sobel_x = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=KERNEL_SIZE)
+    sobel_y = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=KERNEL_SIZE)
+    edge = np.sqrt(sobel_x**2 + sobel_y**2)
+    avg_edge_strength = np.mean(edge)
+    
+
+    _timer += drone.get_delta_time()
+    if _timer >= HOVER_TIME:
+        print(f"Average edge strength: {avg_edge_strength}")
+        _done = True
+
     ###### END PUT CODE HERE #########
     ##################################
     return _done

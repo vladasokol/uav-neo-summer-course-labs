@@ -53,7 +53,14 @@ def update(drone):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _, mask = cv2.threshold(gray, THRESHOLD_VALUE, 255, cv2.THRESH_BINARY)
     kernel = np.ones((KERNEL_SIZE, KERNEL_SIZE), np.uint8)
-    
+    open_mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    og_count = cv2.countNonZero(mask)
+    new_count = cv2.countNonZero(open_mask)
+    removed = og_count - new_count
+    _timer += drone.get_delta_time()
+    if _timer >= HOVER_TIME:
+        print(f"{removed} pixels removed. Before: {og_count} After: {new_count}")
+        _done = True
 
     ###### END PUT CODE HERE #########
     ##################################
