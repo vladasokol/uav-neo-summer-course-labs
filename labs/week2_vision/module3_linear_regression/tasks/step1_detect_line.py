@@ -47,6 +47,16 @@ def update(drone):
     # image, V_MIN) gives a mask of the bright pixels. Count them, and after HOVER_TIME
     # print the count and set _done. See the README (Key terms).
 
+
+    image = drone.camera.downward.latest_image
+    mask = neo_lab.bright_mask(image, V_MIN)
+    count = np.count_nonzero(mask)
+    _timer += drone.flight.time_step
+    if _timer >= HOVER_TIME:
+        print(f"{count} bright edge pixels")
+        _done = True
+
+
     ###### END PUT CODE HERE #########
     ##################################
     return _done
