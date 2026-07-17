@@ -19,7 +19,7 @@ _d = _os.path.dirname(_os.path.realpath(__file__))
 while _os.path.basename(_d) != "labs" and _os.path.dirname(_d) != _d:
     _d = _os.path.dirname(_d)
 if _d not in _sys.path:
-    _sys.path.insert(0, _d)
+    _sys.path.insert(0, _d) 
 import neo_lab
 
 # -- Constants --------------------------------------------------------------
@@ -49,6 +49,16 @@ def update(drone):
     # the gates: convert the forward color image to HSV and build a mask from that range.
     # Report the fraction of masked pixels. Advance _timer and finish at HOVER_TIME.
     # See the README (Key terms) for HSV masking.
+
+    image = drone.camera.get_color_image()
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, LOWER, UPPER)
+    coverage = np.count_nonzero(mask) / mask.size
+    _timer += drone.get_delta_time()
+    if _timer >= HOVER_TIME:
+        print(f"cyan gate pixels cover {coverage * 100:.1f}%")
+        _done = True
+    
 
     ###### END PUT CODE HERE #########
     ##################################
