@@ -49,6 +49,12 @@ def update(drone):
     # the white-pixel count before and after to see what was removed. Advance _timer and
     # finish once it reaches HOVER_TIME. See the README (Key terms) for morphology.
 
+    image = drone.camera.get_downward_image()
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, mask = cv2.threshold(gray, THRESHOLD_VALUE, 255, cv2.THRESH_BINARY)
+    kernel = np.ones((KERNEL_SIZE, KERNEL_SIZE), np.uint8)
+    
+
     ###### END PUT CODE HERE #########
     ##################################
     return _done

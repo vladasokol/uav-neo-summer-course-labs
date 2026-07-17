@@ -48,6 +48,21 @@ def update(drone):
     # fraction of white pixels. Advance _timer and finish (_done) once it reaches
     # HOVER_TIME. See the README (Key terms) for thresholding.
 
+    image = drone.camera.get_downward_image()
+    gray =cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, binary_mask = cv2.threshold(gray, THRESHOLD_VALUE, 255, cv2.THRESH_BINARY)
+    white_fraction = np.count_nonzero(binary_mask) / binary_mask.size
+    percent_white = round(white_fraction * 100, 1)
+    print(f"{percent_white}% of pixels are white!")
+
+    if _timer >= HOVER_TIME:
+        _done = True
+
+
+
+
+
+    
     ###### END PUT CODE HERE #########
     ##################################
     return _done
