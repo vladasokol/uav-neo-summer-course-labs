@@ -17,7 +17,7 @@ import os as _os, sys as _sys
 _d = _os.path.dirname(_os.path.realpath(__file__))
 while _os.path.basename(_d) != "labs" and _os.path.dirname(_d) != _d:
     _d = _os.path.dirname(_d)
-if _d not in _sys.path:
+if _d not in _sys.path: 
     _sys.path.insert(0, _d)
 import neo_lab
 
@@ -59,6 +59,28 @@ def update(drone):
     # MAX_TILT. Which sign centers the drone depends on how the camera is mounted --
     # pick a sign, watch which way it runs, and flip it if it diverges. With no gate
     # in view, hold position and reset your centered timer.
+
+    image = drone.camera.get_downward_image()
+    best = neo_lab.largest_bright_contour(image, V_MIN, MIN_AREA)
+    if best is None:
+        _hold = 0.0
+        drone.flight.send_pcmd(0, 0, 0, 0)
+        return False
+    center = uav_utils.contour_center(best)
+    row_err = center[0] - ROW_CENTER
+    col_err = center[1] - COL_CENTER
+    roll = uav_utils.clamp(-col_err / COL_CENTER * MAX_TILT, -MAX_TILT, MAX_TILT)
+    pitch = uav_utils.clamp(-row_err / ROW_CENTER * MAX_TILT, -MAX_TILT, MAX_TILT)
+    drone.flight.send_pcmd(roll, pitch, 0, 0)
+    if abs(row_err) < CENTER_TOL and abs(col_err) < CENTER_TOL:
+        _hold += drone.get_delta_time()
+        if _hold >= HOLD_TIME:
+            drone.flight.stop()
+            print("The drone is over the gate")
+            _done = True
+    else:
+        _hold = 0.0
+
 
     ###### END PUT CODE HERE #########
     ##################################

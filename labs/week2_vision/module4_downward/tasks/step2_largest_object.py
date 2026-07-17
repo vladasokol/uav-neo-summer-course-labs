@@ -9,7 +9,7 @@ Locate the largest glowing gate frame and report its center and area.
 import drone_core
 import drone_utils as uav_utils
 import cv2
-import numpy as np
+import numpy as np 
 
 # -- Course setup: makes the shared `neo_lab` helper importable.
 #    You don't need to read or change this block. --
@@ -48,6 +48,17 @@ def update(drone):
     # MIN_AREA); if it returns None nothing is bright enough yet -> return False. Otherwise
     # report its center and area (see uav_utils for contour helpers). Advance _timer and
     # finish at HOVER_TIME.
+
+    image = drone.camera.get_downward_image()
+    best = neo_lab.largest_bright_contour(image, V_MIN, MIN_AREA)
+    if best is None:
+        return False
+    center = uav_utils.contour_center(best)
+    area = uav_utils.contour_area(best)
+    print(f"Center of largest gate: {center}, area: {area}")
+    _timer += drone.get_delta_time()
+    if _timer >= HOVER_TIME:
+        _done = True
 
     ###### END PUT CODE HERE #########
     ##################################
