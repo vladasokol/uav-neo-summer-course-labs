@@ -63,6 +63,22 @@ def update(drone):
     # keep its box centered on COL_CENTER and add APPROACH_PITCH forward. Stop and finish
     # once distance <= STOP_DIST.
 
+    image = drone.camera.get_color_image()
+    gate = neo_lab.largest_cyan_gate(image, MIN_AREA)
+    if gate is None:
+        drone.flight.send_pcmd(0.0, 0.0, SEARCH_YAW, 0.0)
+        return False
+    x, y, w, h = cv2.boundingRect(gate)
+    distance = (FOCAL_PX * REAL_GATE_WIDTH) / w
+    err = (x + w / 2.0 - COL_CENTER) / COL_CENTER
+    yaw = uav_utils.clamp(err * MAX_YAW, -MAX_YAW, MAX_YAW)
+    if distance <= STOP_DIST:
+        drone.flight.stop()
+        print(f"Gate reached, distance: {distance:.2f} m")
+        _done = True
+    else:
+        drone.flight.send_pcmd(APPROACH_PITCH, 0.0, yaw, 0.0)
+
     ###### END PUT CODE HERE #########
     ##################################
     return _done
