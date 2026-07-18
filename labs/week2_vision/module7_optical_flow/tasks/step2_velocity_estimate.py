@@ -13,7 +13,7 @@ import drone_core
 import drone_utils as uav_utils
 import cv2
 import numpy as np
-
+ 
 # -- Course setup: makes the shared `neo_lab` helper importable.
 #    You don't need to read or change this block. --
 import os as _os, sys as _sys
@@ -74,6 +74,48 @@ def update(drone):
     # IMAGE_WIDTH), and divide by _interval (the time between PROCESSED frames, not one dt);
     # then reset _interval. The camera moves opposite the scene flow (sign flip). Finish at
     # RUN_TIME, printing the estimate vs. true velocity. See the README (Key terms).
+
+    dt = drone.get_delta_time()
+    drone.flight.send_pcmd(PROBE_PITCH, 0, 0, 0)
+    _timer += dt
+    _interval += dt
+    _frame += 1
+
+    if _frame % SKIP == 0:
+        gray = cv2.cvtColor(drone.camera.get_downward_image(), cv2.COLOR_BGR2GRAY)
+
+        if _prev_pts is None or len(_prev_pts) < MIN_PTS or _interval <= 0:
+            _prev_pts = cv2.goodFeaturesToTrack(gray, **FEATURE_PARAMS)
+        else:
+            new_pts, status, _ = cv2.calcOpticalFlowPyrLK(_prev_gray, gray, _prev_pts, None, **LK_PARAMS)
+            if new_pts is not None and status is not None:
+                keep = status.flatten() == 1
+                good_new = new_pts[keep].reshape(-1, 2)
+                good_old = _prev_pts[keep].reshape(-1, 2)
+                if len(good_new) > 0:
+                    
+                    mean_dx, mean_dy = (good_new - good_old).mean(axis=0)
+                    height = max(neo_lab.height(drone), 0.1)
+                    mpp = 2.0 * height * HFOV_TAN / IMAGE_WIDTH
+                    _est = (-mean_dx * mpp / _interval, -mean_dy * mpp / _interval)
+                    vx, vy, vz = drone.physics.get_linear_velocity()
+                    _true = (float(vx), float(vz))
+                _prev_pts = good_new.reshape(-1, 1, 2)
+
+        _prev_gray = gray
+        _interval = 0.0
+
+    if _timer >= RUN_TIME:
+        drone.flight.stop()
+        _done = True
+    return _done
+
+
+
+
+
+
+
 
     ###### END PUT CODE HERE #########
     ##################################

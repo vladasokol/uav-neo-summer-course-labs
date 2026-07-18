@@ -14,7 +14,7 @@ import drone_core
 import drone_utils as uav_utils
 import cv2
 import numpy as np
-
+ 
 # -- Course setup: makes the shared `neo_lab` helper importable.
 #    You don't need to read or change this block. --
 import os as _os, sys as _sys
@@ -68,6 +68,30 @@ def update(drone):
     # and set _last_mag to their average pixel displacement. Remember the frame for next
     # time. Finish at HOVER_TIME, printing _last_mag. See the README (Key terms) and the
     # OpenCV sparse optical-flow functions.
+
+    _timer += drone.get_delta_time()
+    _frame += 1
+    drone.flight.send_pcmd(PROBE_PITCH, 0, 0, 0)
+
+    if _frame % SKIP == 0:
+        gray = cv2.cvtColor(drone.camera.get_downward_image(), cv2.COLOR_BGR2GRAY)
+
+        if _prev_pts is None or len(_prev_pts) < MIN_PTS:
+            _prev_pts = cv2.goodFeaturesToTrack(gray, **FEATURE_PARAMS)
+        else:
+            new_pts, status, _ = cv2.calcOpticalFlowPyrLK(_prev_gray, gray, _prev_pts, None, **LK_PARAMS)
+            good_new = new_pts[status == 1]
+            good_old = _prev_pts[status == 1]
+            _last_mag = np.linalg.norm(good_new - good_old, axis=1).mean() if len(good_new) else 0.0
+            _prev_pts = good_new.reshape(-1, 1, 2)
+
+        _prev_gray = gray
+
+    if _timer >= HOVER_TIME:
+        drone.flight.stop()
+        print(f"mean sparse flow magnitude = {_last_mag:.3f}")
+        _done = True
+
 
     ###### END PUT CODE HERE #########
     ##################################
