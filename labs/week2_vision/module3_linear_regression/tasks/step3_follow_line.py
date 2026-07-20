@@ -70,7 +70,7 @@ def update(drone):
         roll = uav_utils.clamp(offset / IMAGE_CENTER * MAX_ROLL, -MAX_ROLL, MAX_ROLL)
 
     drone.flight.send_pcmd(FORWARD_PITCH, roll, 0.0, 0.0)
-    _timer += drone.time.dt
+    _timer += drone.get_delta_time()
     if _timer >= FOLLOW_TIME:
         drone.flight.stop()
         print("done")

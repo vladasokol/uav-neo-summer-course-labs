@@ -64,7 +64,7 @@ def update(drone):
     # False. Otherwise call fit_line() and print m, b. Advance _timer and finish at
     # HOVER_TIME.
 
-    image = drone.camera.downward.latest_image
+    image = drone.camera.get_downward_image()
     mask = neo_lab.bright_mask(image, V_MIN) > 0
     points = np.argwhere(mask)
     
@@ -73,7 +73,7 @@ def update(drone):
         return False 
     m, b = fit_line(points)
     print(f"m: {m}, b: {b}")
-    _timer += drone.flight.time_step
+    _timer += drone.get_delta_time()
     
     
     if _timer >= HOVER_TIME:

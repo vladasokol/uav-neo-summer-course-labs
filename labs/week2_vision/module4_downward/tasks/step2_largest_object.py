@@ -53,8 +53,8 @@ def update(drone):
     best = neo_lab.largest_bright_contour(image, V_MIN, MIN_AREA)
     if best is None:
         return False
-    center = uav_utils.contour_center(best)
-    area = uav_utils.contour_area(best)
+    center = uav_utils.get_contour_center(best)
+    area = uav_utils.get_contour_area(best)
     print(f"Center of largest gate: {center}, area: {area}")
     _timer += drone.get_delta_time()
     if _timer >= HOVER_TIME:
