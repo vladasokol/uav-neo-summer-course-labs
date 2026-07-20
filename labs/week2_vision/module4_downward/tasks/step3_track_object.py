@@ -64,14 +64,14 @@ def update(drone):
     best = neo_lab.largest_bright_contour(image, V_MIN, MIN_AREA)
     if best is None:
         _hold = 0.0
-        drone.flight.send_pcmd(0, 0, 0, 0)
+        drone.flight.stop()
         return False
-    center = uav_utils.contour_center(best)
+    center = uav_utils.get_contour_center(best)
     row_err = center[0] - ROW_CENTER
     col_err = center[1] - COL_CENTER
-    roll = uav_utils.clamp(-col_err / COL_CENTER * MAX_TILT, -MAX_TILT, MAX_TILT)
+    roll = uav_utils.clamp(col_err / COL_CENTER * MAX_TILT, -MAX_TILT, MAX_TILT)
     pitch = uav_utils.clamp(-row_err / ROW_CENTER * MAX_TILT, -MAX_TILT, MAX_TILT)
-    drone.flight.send_pcmd(roll, pitch, 0, 0)
+    drone.flight.send_pcmd(pitch, roll, 0, 0)
     if abs(row_err) < CENTER_TOL and abs(col_err) < CENTER_TOL:
         _hold += drone.get_delta_time()
         if _hold >= HOLD_TIME:

@@ -39,7 +39,7 @@ def fit_line(points):
     ys = points[:, 0]
     xs = points[:, 1]
 
-    m = np.polyfit(xs, ys, 1)
+    m = np.polyfit(xs, ys, 1)[0]
     b = np.polyfit(xs, ys, 1)[1]
     ###### END PUT CODE HERE #########
     ##################################

@@ -100,6 +100,7 @@ def update(drone):
                     _est = (-mean_dx * mpp / _interval, -mean_dy * mpp / _interval)
                     vx, vy, vz = drone.physics.get_linear_velocity()
                     _true = (float(vx), float(vz))
+                    print("velocity estimate:", _est, "true:", _true)
                 _prev_pts = good_new.reshape(-1, 1, 2)
 
         _prev_gray = gray

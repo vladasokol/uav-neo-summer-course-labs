@@ -54,8 +54,8 @@ def update(drone):
     image = drone.camera.get_downward_image()
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.blur(gray, (KERNEL_SIZE, KERNEL_SIZE))
-    sobel_x = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=KERNEL_SIZE)
-    sobel_y = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=KERNEL_SIZE)
+    sobel_x = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=3)
+    sobel_y = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=3)
     edge = np.sqrt(sobel_x**2 + sobel_y**2)
     avg_edge_strength = np.mean(edge)
     
