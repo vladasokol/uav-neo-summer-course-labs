@@ -11,6 +11,7 @@ A completed reference lives in ../solutions/coordinate_frames.py
 """
 
 import numpy as np
+from pandas.core.window import rolling
 
 
 # ── Part A: Euler angles -> rotation matrix ─────────────────────────────────────────
@@ -22,6 +23,25 @@ def euler_to_rot(roll, pitch, yaw):
     ##################################
     #### START PUT CODE HERE #########
     R = np.eye(3)
+
+    cr,sr = np.cos(roll), np.sin(roll)
+    cp,sp = np.cos(pitch), np.sin(pitch)
+    cy,sy = np.cos(yaw), np.sin(yaw)
+
+    Rx = np.array([[cp, -sr, sr],
+                   [0, cr, -sr],
+                   [0, sr, cr]])
+
+    Ry = np.array([[cp,0,sp],
+                   [0,1,0],
+                   [-sp,0,cp]])
+
+    Rz = np.array([[cy,-sy,0],
+                   [sy,cy,0],
+                   [0,0,1]])
+
+
+
     ###### END PUT CODE HERE #########
     ##################################
     return R
@@ -35,10 +55,14 @@ def rot_to_quat(R):
     """
     ##################################
     #### START PUT CODE HERE #########
-    w = 1.0
-    x = 0.0
-    y = 0.0
-    z = 0.0
+
+    w = np.sqrt(max(0.0,1 + R[0,0] + R[1,1] + R[2,2]))/2
+    x = (R[2,1] - R[1,2])/(4*w)
+    y= (R[0,2] - R[2,0])/(4*w)
+    z = (R[1,0] - R[0,1])/(4*w)
+
+
+
     ###### END PUT CODE HERE #########
     ##################################
     return np.array([x, y, z, w])
@@ -53,7 +77,11 @@ def enu_to_ned(vec):
     e, n, u = vec
     ##################################
     #### START PUT CODE HERE #########
-    result = np.array([0.0, 0.0, 0.0])  # YOUR CODE HERE
+    result = np.array([n, e, -u])  # YOUR CODE HERE
+
+
+
+
     ###### END PUT CODE HERE #########
     ##################################
     return result
@@ -67,8 +95,8 @@ def thrust_allocation(mass, k_f, total_thrust):
     """
     ##################################
     #### START PUT CODE HERE #########
-    per = 0.0    # YOUR CODE HERE
-    omega = 0.0  # YOUR CODE HERE
+    per = total_thrust/4.0    # YOUR CODE HERE
+    omega = np.sqrt(per/k_f)  # YOUR CODE HERE
     ###### END PUT CODE HERE #########
     ##################################
     return omega, per
@@ -78,7 +106,7 @@ def hover_thrust(mass, g=9.81):
     """Total thrust (N) needed to hover (see README, Key terms)."""
     ##################################
     #### START PUT CODE HERE #########
-    return 0.0  # YOUR CODE HERE
+    return mass*g  # YOUR CODE HERE
     ###### END PUT CODE HERE #########
     ##################################
 
