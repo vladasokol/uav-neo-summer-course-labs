@@ -52,6 +52,20 @@ def update(drone):
     # SETPOINTS[_index] instead of a fixed value, and you advance _index after holding
     # each one. Stop and set _done once _index runs past the end of the list.
 
+    target = SETPOINTS[_index]
+    error = target - neo_lab.height(drone)
+    throttle = uav_utils.clamp(KP * error, -THROTTLE_LIMIT, THROTTLE_LIMIT)
+    drone.flight.send_pcmd(0, 0, 0, throttle)
+
+    if abs(error) < TOL:
+        _hold += drone.get_delta_time()
+
+    if _hold >= HOLD_TIME:
+        _index +=1
+        _hold = 0.0
+        if _index >= len(SETPOINTS):
+            drone.flight.stop()
+            _done = True
     ###### END PUT CODE HERE #########
     ##################################
     return _done
