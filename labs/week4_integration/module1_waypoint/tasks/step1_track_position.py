@@ -52,6 +52,17 @@ def update(drone):
     # diagonally with PROBE_PITCH/PROBE_ROLL so the drone moves. After REPORT_TIME, stop,
     # print the position (use neo_lab.height(drone) for the up axis), and set _done.
 
+    dt = drone.get_delta_time()
+    vx, _vy, vz = drone.physics.get_linear_velocity()
+    _x += vx * dt
+    _z += vz * dt
+    _timer += dt
+    if _timer < REPORT_TIME:
+        drone.flight.send_pcmd(PROBE_PITCH, PROBE_ROLL, 0, 0)
+    else:
+        drone.flight.stop()
+        print("right", _x, "up", neo_lab.height(drone), "forward", _z)
+        _done = True
     ###### END PUT CODE HERE #########
     ##################################
     return _done
