@@ -62,6 +62,23 @@ def update(drone):
     # neo_lab.altitude_hold_velocity, all three sent with send_velocity. When within WP_TOL
     # of the corner on both axes, advance _wp += 1.
 
+    dt = drone.get_delta_time()
+    vx, _vy, vz = drone.physics.get_linear_velocity()
+    _x += vx * dt
+    _z += vz * dt
+    if _wp >= len(WAYPOINTS):
+        drone.flight.stop()
+        print("Square complete")
+        _done = True
+        return True
+    goal_x, goal_z = WAYPOINTS[_wp]
+    err_x = goal_x - _x
+    err_z = goal_z - _z
+    neo_lab.send_velocity(drone, KP_POS * err_x,
+                          neo_lab.altitude_hold_velocity(drone, TARGET_HEIGHT),
+                          KP_POS * err_z)
+    if abs(err_x) < WP_TOL and abs(err_z) < WP_TOL:
+        _wp += 1
     ###### END PUT CODE HERE #########
     ##################################
     return _done
