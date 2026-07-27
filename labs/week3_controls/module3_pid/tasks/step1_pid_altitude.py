@@ -74,11 +74,12 @@ def update(drone):
     _err_int = uav_utils.clamp(_err_int + error* dt, -INT_CLAMP, INT_CLAMP)
     if dt >0:
         err_dot = (error- _prev_err) / dt
-    else
+    else:
         err_dot = 0.0
 
     _prev_err = error
     throttle = uav_utils.clamp(pid_control(error, _err_int, err_dot, KP, KI, KD), -THROTTLE_LIMIT, THROTTLE_LIMIT)
+    drone.flight.send_pcmd(0, 0, 0, throttle)
 
     if abs(error) < TOL:
         _hold += dt
