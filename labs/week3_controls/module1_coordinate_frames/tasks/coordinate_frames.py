@@ -11,7 +11,6 @@ A completed reference lives in ../solutions/coordinate_frames.py
 """
 
 import numpy as np
-from pandas.core.window import rolling
 
 
 # ── Part A: Euler angles -> rotation matrix ─────────────────────────────────────────
@@ -28,7 +27,7 @@ def euler_to_rot(roll, pitch, yaw):
     cp,sp = np.cos(pitch), np.sin(pitch)
     cy,sy = np.cos(yaw), np.sin(yaw)
 
-    Rx = np.array([[cp, -sr, sr],
+    Rx = np.array([[1, 0, 0],
                    [0, cr, -sr],
                    [0, sr, cr]])
 
@@ -40,7 +39,7 @@ def euler_to_rot(roll, pitch, yaw):
                    [sy,cy,0],
                    [0,0,1]])
 
-
+    R = Rz @ Ry @ Rx
 
     ###### END PUT CODE HERE #########
     ##################################
