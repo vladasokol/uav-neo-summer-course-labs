@@ -90,26 +90,31 @@ def update(drone):
         if _search_t > SEARCH_TIMEOUT:
             drone.flight.stop()
             print(f"No gate detected. Landing")
-            _drone =True
+            _done = True
             return True
         drone.flight.send_pcmd(SEARCH_PITCH, 0, SEARCH_YAW, 0)
         _err_int = 0.0
-        if dt > 0:
-            err_dot = (error - _prev_err) / dt
-        else:
-            err_dot = 0.0
+        _hold = 0.0
+        return False
 
-        _prev_err = error
-        yaw = uav_utils.clamp(pid_control(error, _err_int, err_dot, KP, KI, KD), -MAX_YAW, MAX_YAW)
-        drone.flight.send_pcmd(0, 0, yaw, 0)
-        if abs(error) < CENTER_TOL:
-            _hold += dt
-        elif abs(error) > 2.0 * CENTER_TOL:
-            _hold = 0.0  # only reset on a big miss; tolerate small flicker
-        if _hold >= HOLD_TIME:
-            drone.flight.stop()
-            print("See the gate")
-            _drone = True
+    _search_t = 0.0
+    error = (gate.cx - COL_CENTER) / COL_CENTER
+    if dt > 0:
+        err_dot = (error - _prev_err) / dt
+    else:
+        err_dot = 0.0
+
+    _prev_err = error
+    yaw = uav_utils.clamp(pid_control(error, _err_int, err_dot, KP, KI, KD), -MAX_YAW, MAX_YAW)
+    drone.flight.send_pcmd(0, 0, yaw, 0)
+    if abs(error) < CENTER_TOL:
+        _hold += dt
+    elif abs(error) > 2.0 * CENTER_TOL:
+        _hold = 0.0  # only reset on a big miss; tolerate small flicker
+    if _hold >= HOLD_TIME:
+        drone.flight.stop()
+        print("See the gate")
+        _done = True
 
     ###### END PUT CODE HERE #########
     ##################################
