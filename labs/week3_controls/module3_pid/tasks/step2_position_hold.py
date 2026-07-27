@@ -81,21 +81,22 @@ def update(drone):
 
     _pos += velocity[2] * dt
     error = TARGET_DIST - _pos
-    _err_int = error* dt
+    _err_int += error* dt
     err_dot = -velocity[2]
     _prev_err = error
 
     pitch = uav_utils.clamp(pid_control(error, _err_int, err_dot, KP, KI, KD), -PITCH_LIMIT, PITCH_LIMIT)
     throttle = uav_utils.clamp(ALT_KP * (TARGET_HEIGHT - neo_lab.height(drone)), -THROTTLE_LIMIT, THROTTLE_LIMIT)
+    drone.flight.send_pcmd(pitch, 0, 0, throttle)
 
-    if _t > MIN_TRAVEL:
+    if _t > MIN_TRAVEL and abs(velocity[2]) < SETTLE_SPEED:
         _hold +=dt
     else:
         _hold = 0.0
 
     if _hold >= HOLD_TIME:
         drone.flight.stop()
-        _drone = True
+        _done = True
     ###### END PUT CODE HERE #########
     ##################################
     return _done
