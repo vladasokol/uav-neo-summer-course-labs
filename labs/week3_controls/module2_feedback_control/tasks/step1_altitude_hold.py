@@ -22,7 +22,7 @@ import neo_lab
 
 # -- Constants --------------------------------------------------------------
 TARGET_HEIGHT = 0.5    # meters above ground
-KP = 0.2              # throttle ~ 12 m/s per unit, so keep small
+KP = 0.3              # throttle ~ 12 m/s per unit, so keep small
 THROTTLE_LIMIT = 0.5
 TOL = 0.2            # P-control leaves a small steady-state droop
 HOLD_TIME = 3.0      # seconds on target before done

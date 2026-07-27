@@ -21,7 +21,7 @@ import neo_lab
 
 # -- Constants --------------------------------------------------------------
 SETPOINTS = [0.5, 1.0, 0.3]   # meters above ground, in order
-KP = 0.2
+KP = 0.3
 THROTTLE_LIMIT = 0.5
 TOL = 0.2
 HOLD_TIME = 2.0
