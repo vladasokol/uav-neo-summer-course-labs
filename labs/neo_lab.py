@@ -140,6 +140,8 @@ def world_position(drone):
 REAL_MAX_SPEED = 0.5     # m/s mapped to a full normalized command; MUST match mux.yaml max_speed
 _SIM_VEL_KP = 0.3        # sim inner loop: tilt per (m/s) of horizontal velocity error
 _SIM_VZ_MPS = 12.0       # sim throttle scale: ~12 m/s of vertical velocity per unit throttle
+_SIM_THROTTLE_DEADBAND = 0.06  # sim v1.0.0 treats |throttle| < ~0.05 as "no input" and altitude-holds
+_SIM_VUP_HOLD = 0.15     # m/s: below this, command 0 so the sim's own altitude hold keeps height
 _SIM_TILT_LIMIT = 0.5   # keep tilt gentle: the sim's attitude response is fast and high-authority
 _SIM_THROTTLE_LIMIT = 0.5
 
@@ -163,6 +165,10 @@ def send_velocity(drone, v_right, v_up, v_forward, yaw_rate=0.0):
                                -_SIM_TILT_LIMIT, _SIM_TILT_LIMIT)
         throttle = uav_utils.clamp(v_up / _SIM_VZ_MPS,
                                    -_SIM_THROTTLE_LIMIT, _SIM_THROTTLE_LIMIT)
+        if abs(v_up) < _SIM_VUP_HOLD:
+            throttle = 0.0
+        elif abs(throttle) < _SIM_THROTTLE_DEADBAND:
+            throttle = _SIM_THROTTLE_DEADBAND if throttle > 0 else -_SIM_THROTTLE_DEADBAND
         drone.flight.send_pcmd(pitch, roll, yaw_rate, throttle)
     else:
         drone.flight.send_pcmd(
