@@ -88,6 +88,9 @@ def update(drone):
     # (send_velocity commands velocity in m/s -- the same call works on the real drone. See
     # the README, "Commanding velocity.")
 
+    v_up = ALT_KP * (TARGET_HEIGHT - neo_lab.height(drone))
+    neo_lab.send_velocity(drone, vel_r + KP_POS * (pos_r - _x), v_up,
+                          vel_f + KP_POS * (pos_f - _z))
     ###### END PUT CODE HERE #########
     ##################################
     err = ((pos_r - _x) ** 2 + (pos_f - _z) ** 2) ** 0.5
